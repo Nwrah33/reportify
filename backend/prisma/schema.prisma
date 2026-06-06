@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
+enum SubscriptionPlan {
+  FREE
+  MONTHLY
+  YEARLY
+}
+
+enum ProjectType {
+  REPORT
+  BROCHURE
+  PRESENTATION
+  FLYER
+  COMPANY_PROFILE
+  CV
+  PORTFOLIO
+  SUMMARY
+}
+
+enum ExportFormat {
+  PDF
+  DOCX
+  PPTX
+  PNG
+  JPG
+}
+
+enum ProjectStatus {
+  DRAFT
+  COMPLETED
+  ARCHIVED
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  passwordHash      String?
+  name              String?
+  avatar            String?
+  role              UserRole           @default(USER)
+  isActive          Boolean            @default(true)
+  emailVerified     Boolean            @default(false)
+  appleUserId       String?            @unique
+  googleId          String?            @unique
+  refreshToken      String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  lastLogin         DateTime?
+  
+  // Relations
+  projects          Project[]
+  subscription      Subscription?
+  payments          Payment[]
+  activityLogs      ActivityLog[]
+  savedTemplates    SavedTemplate[]
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan              SubscriptionPlan   @default(FREE)
+  status            SubscriptionStatus @default(TRIAL)
+  startDate         DateTime           @default(now())
+  endDate           DateTime?
+  trialEndDate      DateTime?
+  stripeCustomerId  String?
+  stripeSubscriptionId String?
+  autoRenew         Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  payments          Payment[]
+}
+
+model Payment {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionId    String?
+  subscription      Subscription?      @relation(fields: [subscriptionId], references: [id])
+  amount            Float
+  currency          String             @default("SAR")
+  status            String             @default("pending")
+  paymentMethod     String?
+  paymentGateway    String             @default("stripe")
+  gatewayPaymentId  String?
+  invoiceUrl        String?
+  description       String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model Template {
+  id                String             @id @default(cuid())
+  name              String
+  nameAr            String?
+  description       String
+  descriptionAr     String?
+  category          String
+  subCategory       String?
+  thumbnailUrl      String
+  previewUrl        String?
+  templateData      Json
+  colors            Json?
+  fonts             Json?
+  isPremium         Boolean            @default(false)
+  isActive          Boolean            @default(true)
+  isPublished       Boolean            @default(false)
+  downloadsCount    Int                @default(0)
+  usageCount        Int                @default(0)
+  rating            Float              @default(0)
+  createdBy         String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  savedTemplates    SavedTemplate[]
+}
+
+model SavedTemplate {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId        String
+  template          Template           @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  isFavorite        Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  
+  @@unique([userId, templateId])
+}
+
+model Project {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId        String?
+  template          Template?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  title             String
+  description       String?
+  projectType       ProjectType        @default(REPORT)
+  status            ProjectStatus      @default(DRAFT)
+  content           Json?
+  generatedContent  Json?
+  settings          Json?
+  thumbnailUrl      String?
+  fileUrl           String?
+  fileSize          Int?
+  wordCount         Int?
+  isFavorite        Boolean            @default(false)
+  sharedLink        String?            @unique
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  projectFiles      ProjectFile[]
+}
+
+model ProjectFile {
+  id                String             @id @default(cuid())
+  projectId         String
+  project           Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fileName          String
+  fileType          String
+  fileSize          Int
+  fileUrl           String
+  storagePath       String
+  aiProcessed       Boolean            @default(false)
+  aiResult          Json?
+  createdAt         DateTime           @default(now())
+}
+
+model ActivityLog {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action            String
+  details           Json?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime           @default(now())
+}
+
+model Refund {
+  id                String             @id @default(cuid())
+  userId            String
+  paymentId         String
+  amount            Float
+  reason            String
+  status            String             @default("pending")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model ContactMessage {
+  id                String             @id @default(cuid())
+  name              String
+  email             String
+  subject           String
+  message           String
+  isRead            Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+}
