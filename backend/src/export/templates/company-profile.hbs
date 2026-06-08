@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>{{{css}}}</style></head>
+<body>
+<div class="cover">
+  <h1>{{title}}</h1>
+  {{#if description}}<div class="meta">{{description}}</div>{{/if}}
+</div>
+
+{{#if overview}}<h2>نظرة عامة</h2><p>{{overview}}</p>{{/if}}
+{{#if mission}}<h2>الرسالة</h2><p>{{mission}}</p>{{/if}}
+{{#if vision}}<h2>الرؤية</h2><p>{{vision}}</p>{{/if}}
+
+{{#if sections}}
+{{#each sections}}
+<h2>{{title}}</h2><p>{{content}}</p>
+{{/each}}
+{{/if}}
+
+<div class="footer">تم إنشاؤه بواسطة Reportify</div>
+</body>
+</html>

@@ -7,68 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  USER
-  ADMIN
-  SUPER_ADMIN
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  INACTIVE
-  CANCELLED
-  EXPIRED
-  TRIAL
-}
-
-enum SubscriptionPlan {
-  FREE
-  MONTHLY
-  YEARLY
-}
-
-enum ProjectType {
-  REPORT
-  BROCHURE
-  PRESENTATION
-  FLYER
-  COMPANY_PROFILE
-  CV
-  PORTFOLIO
-  SUMMARY
-}
-
-enum ExportFormat {
-  PDF
-  DOCX
-  PPTX
-  PNG
-  JPG
-}
-
-enum ProjectStatus {
-  DRAFT
-  COMPLETED
-  ARCHIVED
-}
-
 model User {
   id                String             @id @default(cuid())
   email             String             @unique
   passwordHash      String?
   name              String?
   avatar            String?
-  role              UserRole           @default(USER)
+  role              String             @default("USER")
   isActive          Boolean            @default(true)
   emailVerified     Boolean            @default(false)
   appleUserId       String?            @unique
   googleId          String?            @unique
   refreshToken      String?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   lastLogin         DateTime?
   
-  // Relations
   projects          Project[]
   subscription      Subscription?
   payments          Payment[]
@@ -80,8 +36,8 @@ model Subscription {
   id                String             @id @default(cuid())
   userId            String             @unique
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan              SubscriptionPlan   @default(FREE)
-  status            SubscriptionStatus @default(TRIAL)
+  plan              String             @default("FREE")
+  status            String             @default("TRIAL")
   startDate         DateTime           @default(now())
   endDate           DateTime?
   trialEndDate      DateTime?
@@ -122,9 +78,9 @@ model Template {
   subCategory       String?
   thumbnailUrl      String
   previewUrl        String?
-  templateData      Json
-  colors            Json?
-  fonts             Json?
+  templateData      String             @default("{}")
+  colors            String?
+  fonts             String?
   isPremium         Boolean            @default(false)
   isActive          Boolean            @default(true)
   isPublished       Boolean            @default(false)
@@ -134,8 +90,9 @@ model Template {
   createdBy         String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  
+
   savedTemplates    SavedTemplate[]
+  projects          Project[]
 }
 
 model SavedTemplate {
@@ -158,11 +115,11 @@ model Project {
   template          Template?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
   title             String
   description       String?
-  projectType       ProjectType        @default(REPORT)
-  status            ProjectStatus      @default(DRAFT)
-  content           Json?
-  generatedContent  Json?
-  settings          Json?
+  projectType       String             @default("REPORT")
+  status            String             @default("DRAFT")
+  content           String?
+  generatedContent  String?
+  settings          String?
   thumbnailUrl      String?
   fileUrl           String?
   fileSize          Int?
@@ -185,7 +142,7 @@ model ProjectFile {
   fileUrl           String
   storagePath       String
   aiProcessed       Boolean            @default(false)
-  aiResult          Json?
+  aiResult          String?
   createdAt         DateTime           @default(now())
 }
 
@@ -194,7 +151,7 @@ model ActivityLog {
   userId            String
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   action            String
-  details           Json?
+  details           String?
   ipAddress         String?
   userAgent         String?
   createdAt         DateTime           @default(now())
@@ -219,4 +176,17 @@ model ContactMessage {
   message           String
   isRead            Boolean            @default(false)
   createdAt         DateTime           @default(now())
+}
+
+model ExportRecord {
+  id                String             @id @default(cuid())
+  userId            String
+  projectId         String
+  format            String
+  fileSize          Int                @default(0)
+  fileName          String
+  createdAt         DateTime           @default(now())
+
+  @@index([userId])
+  @@index([projectId])
 }

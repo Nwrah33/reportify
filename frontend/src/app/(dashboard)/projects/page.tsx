@@ -1,26 +1,24 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ProjectCard from '@/components/shared/ProjectCard';
 import EmptyState from '@/components/shared/EmptyState';
-import { Plus, Search, Filter, FolderOpen } from 'lucide-react';
-
-const sampleProjects = [
-  { id: '1', title: 'تقرير يوم التأسيس السعودي', projectType: 'REPORT', updatedAt: new Date(), isFavorite: true, projectFiles: [{ id: 'f1' }] },
-  { id: '2', title: 'بروشور الأمن السيبراني', projectType: 'BROCHURE', updatedAt: new Date(Date.now() - 5*86400000), isFavorite: false, projectFiles: [] },
-  { id: '3', title: 'عرض تقديمي عن الذكاء الاصطناعي', projectType: 'PRESENTATION', updatedAt: new Date(Date.now() - 12*86400000), isFavorite: false, projectFiles: [{ id: 'f2' }] },
-  { id: '4', title: 'السيرة الذاتية المهنية', projectType: 'CV', updatedAt: new Date(Date.now() - 20*86400000), isFavorite: false, projectFiles: [] },
-];
+import { Plus, Search, FolderOpen, Loader2 } from 'lucide-react';
+import { getProjects } from '@/lib/projects-api';
 
 export default function ProjectsPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = sampleProjects.filter(p => {
-    if (filter === 'favorites' && !p.isFavorite) return false;
-    if (search && !p.title.includes(search)) return false;
-    return true;
-  });
+  useEffect(() => {
+    setLoading(true);
+    getProjects({ search: search || undefined, isFavorite: filter === 'favorites' ? true : undefined, sortBy: 'updatedAt', sortOrder: 'desc', limit: 50 })
+      .then(res => setProjects(res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [search, filter]);
 
   return (
     <div className="py-8">
@@ -49,11 +47,13 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary-600" /></div>
+        ) : projects.length === 0 ? (
           <EmptyState title="لا توجد مشاريع" description="ابدأ بإنشاء مشروع جديد" icon={<FolderOpen className="w-16 h-16 text-gray-300" />} />
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((p) => <ProjectCard key={p.id} project={p} />)}
+            {projects.map((p) => <ProjectCard key={p.id} project={p} />)}
           </div>
         )}
       </div>

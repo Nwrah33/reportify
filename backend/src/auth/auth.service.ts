@@ -1,18 +1,24 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcryptjs from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../common/prisma.service';
 import { UsersService } from '../users/users.service';
+import { MailService } from '../mail/mail.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private usersService: UsersService,
+    private mailService: MailService,
+    private config: ConfigService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -36,6 +42,11 @@ export class AuthService {
     });
 
     const tokens = await this.generateTokens(user.id, user.email);
+
+    this.mailService.sendWelcome(user.email, user.name || 'مستخدم').catch(e => {
+      this.logger.warn(`فشل إرسال البريد الترحيبي: ${e.message}`);
+    });
+
     return { user: this.sanitizeUser(user), ...tokens };
   }
 
@@ -157,8 +168,47 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return { message: 'إذا كان البريد موجوداً، سيتم إرسال رابط إعادة التعيين' };
+    }
+
+    const resetToken = uuidv4();
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken, resetTokenExpiry: new Date(Date.now() + 3600000) },
+    });
+
+    const frontendUrl = this.config.get('FRONTEND_URL', 'http://localhost:3000');
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    this.mailService.sendPasswordReset(email, resetLink).catch(e => {
+      this.logger.warn(`فشل إرسال بريد إعادة التعيين: ${e.message}`);
+    });
+
+    return { message: 'إذا كان البريد موجوداً، سيتم إرسال رابط إعادة التعيين' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { resetToken: token, resetTokenExpiry: { gte: new Date() } },
+    });
+
+    if (!user) throw new BadRequestException('الرابط غير صالح أو منتهي الصلاحية');
+
+    const passwordHash = await bcryptjs.hash(newPassword, 12);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash, resetToken: null, resetTokenExpiry: null },
+    });
+
+    return { message: 'تم إعادة تعيين كلمة المرور بنجاح' };
+  }
+
   private sanitizeUser(user: any) {
-    const { passwordHash, refreshToken, ...safeUser } = user;
+    const { passwordHash, refreshToken, resetToken, resetTokenExpiry, ...safeUser } = user;
     return safeUser;
   }
 }

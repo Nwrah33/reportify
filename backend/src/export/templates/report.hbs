@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>{{{css}}}</style></head>
+<body>
+<div class="cover">
+  <h1>{{title}}</h1>
+  <div class="meta">
+    {{#if projectType}}<span>النوع: {{projectType}} | </span>{{/if}}
+    {{#if date}}<span>{{date}}</span>{{/if}}
+  </div>
+</div>
+
+{{#if description}}
+<p style="font-size:15px;color:#475569;margin-bottom:24px;">{{description}}</p>
+{{/if}}
+
+{{{contentHtml}}}
+
+<div class="footer">تم إنشاؤه بواسطة Reportify - منصة التقارير الذكية</div>
+</body>
+</html>

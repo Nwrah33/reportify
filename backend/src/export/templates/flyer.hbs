@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Cairo', 'Noto Sans Arabic', sans-serif; direction: rtl; text-align: right; width: 595px; height: 842px; overflow: hidden; }
+.container { width: 100%; height: 100%; background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #1e3a5f 100%); color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px; text-align: center; }
+h1 { font-size: 36px; margin-bottom: 16px; }
+.description { font-size: 18px; opacity: 0.9; line-height: 1.8; margin-bottom: 24px; }
+.details { font-size: 14px; opacity: 0.75; line-height: 2; }
+</style></head>
+<body>
+<div class="container">
+  <h1>{{title}}</h1>
+  {{#if description}}<div class="description">{{description}}</div>{{/if}}
+  {{#if details}}<div class="details">{{details}}</div>{{/if}}
+</div>
+</body>
+</html>

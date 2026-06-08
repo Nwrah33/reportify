@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>{{{css}}}</style></head>
+<body>
+<div class="page">
+  <div class="cover">
+    <h1>{{title}}</h1>
+    {{#if description}}<div class="subtitle">{{description}}</div>{{/if}}
+  </div>
+  <div class="content">
+    {{#each sections}}
+    <div class="section">
+      <h2>{{title}}</h2>
+      <p>{{content}}</p>
+    </div>
+    {{/each}}
+  </div>
+  <div class="footer">تم إنشاؤه بواسطة Reportify</div>
+</div>
+</body>
+</html>

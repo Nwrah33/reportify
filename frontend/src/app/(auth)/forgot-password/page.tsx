@@ -1,15 +1,26 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowLeft } from 'lucide-react';
+import api from '@/lib/api';
+import { Mail, ArrowLeft, Check, Loader2 } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setLoading(true);
+    setError('');
+    try {
+      await api.post('/auth/forgot-password', { email });
+      setSent(true);
+    } catch {
+      setError('فشل إرسال البريد. يرجى المحاولة مرة أخرى.');
+    }
+    setLoading(false);
   };
 
   if (sent) {
@@ -17,9 +28,11 @@ export default function ForgotPasswordPage() {
       <div className="min-h-[80vh] flex items-center justify-center py-12">
         <div className="w-full max-w-md mx-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">✓</div>
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">تم إرسال البريد</h1>
-            <p className="text-gray-500 mb-6">تم إرسال رابط إعادة تعيين كلمة المرور إلى {email}</p>
+            <p className="text-gray-500 mb-6">إذا كان البريد الإلكتروني مسجلاً، ستتلقى رابط إعادة تعيين كلمة المرور</p>
             <Link href="/login" className="text-primary-600 hover:text-primary-700 font-semibold">العودة لتسجيل الدخول</Link>
           </div>
         </div>
@@ -44,7 +57,11 @@ export default function ForgotPasswordPage() {
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pr-10 pl-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500" required />
               </div>
             </div>
-            <button type="submit" className="w-full bg-primary-600 text-white py-2.5 rounded-lg hover:bg-primary-700 font-semibold">إرسال رابط إعادة التعيين</button>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <button type="submit" disabled={loading} className="w-full bg-primary-600 text-white py-2.5 rounded-lg hover:bg-primary-700 font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              إرسال رابط إعادة التعيين
+            </button>
           </form>
         </div>
       </div>

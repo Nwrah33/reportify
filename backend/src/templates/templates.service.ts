@@ -11,8 +11,8 @@ export class TemplatesService {
     if (category) where.category = category;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search } },
+        { description: { contains: search } },
       ];
     }
 
@@ -43,7 +43,7 @@ export class TemplatesService {
       select: { category: true, subCategory: true },
       distinct: ['category'],
     });
-    return categories.map(c => c.category);
+    return categories.map((c: any) => c.category);
   }
 
   async saveTemplate(userId: string, templateId: string) {

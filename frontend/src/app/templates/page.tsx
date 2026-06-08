@@ -1,40 +1,32 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Filter, Grid3X3, LayoutList, Heart } from 'lucide-react';
-
-const categories = [
-  'الكل', 'تقارير الأعمال', 'تقارير إدارية', 'تقارير تعليمية', 'تقارير جامعية',
-  'تقارير مدرسية', 'تقارير مشاريع', 'تقارير تسويق', 'تقارير موارد بشرية',
-  'تقارير مالية', 'تقارير تقنية', 'بروشورات تجارية', 'بروشورات تسويقية',
-  'كتيبات تعريفية', 'نشرات إعلانية', 'ملفات شركات', 'عروض منتجات',
-  'سير ذاتية', 'ملفات إنجاز', 'عروض تقديمية'
-];
-
-// Sample templates data - in production, fetch from API
-const sampleTemplates = [
-  { id: 1, name: 'تقرير أعمال - أزرق عصري', category: 'تقارير الأعمال', image: '/templates/business-blue.png', downloads: 1234, premium: false },
-  { id: 2, name: 'بروشور شركة - مينيمال', category: 'بروشورات تجارية', image: '/templates/brochure-minimal.png', downloads: 892, premium: false },
-  { id: 3, name: 'تقرير أكاديمي - جامعة', category: 'تقارير جامعية', image: '/templates/academic-formal.png', downloads: 2156, premium: true },
-  { id: 4, name: 'بروشور تسويقي - فيبرانت', category: 'بروشورات تسويقية', image: '/templates/marketing-vibrant.png', downloads: 3451, premium: false },
-  { id: 5, name: 'سيرة ذاتية - احترافية', category: 'سير ذاتية', image: '/templates/cv-professional.png', downloads: 5678, premium: false },
-  { id: 6, name: 'ملف شركة - بريميوم', category: 'ملفات شركات', image: '/templates/company-premium.png', downloads: 987, premium: true },
-  { id: 7, name: 'تقرير تعليمي - أطفال', category: 'تقارير تعليمية', image: '/templates/educational-kids.png', downloads: 654, premium: false },
-  { id: 8, name: 'تقرير مالي - داكن', category: 'تقارير مالية', image: '/templates/financial-dark.png', downloads: 4321, premium: true },
-  { id: 9, name: 'تقرير موارد بشرية', category: 'تقارير موارد بشرية', image: '/templates/hr-clean.png', downloads: 765, premium: false },
-  { id: 10, name: 'تقرير تقني - مطورين', category: 'تقارير تقنية', image: '/templates/technical-dev.png', downloads: 2345, premium: false },
-  { id: 11, name: 'عرض تقديمي - شركات', category: 'عروض تقديمية', image: '/templates/presentation-corporate.png', downloads: 1890, premium: false },
-  { id: 12, name: 'بروشور منتج - عصري', category: 'عروض منتجات', image: '/templates/product-brochure.png', downloads: 2098, premium: true },
-];
+import { Search, Grid3X3, LayoutList, Loader2 } from 'lucide-react';
+import api from '@/lib/api';
 
 export default function TemplatesPage() {
   const [activeCategory, setActiveCategory] = useState('الكل');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>(['الكل']);
+  const [loading, setLoading] = useState(true);
 
-  const filteredTemplates = sampleTemplates.filter(t => {
-    const matchesCategory = activeCategory === 'الكل' || t.category === activeCategory;
-    const matchesSearch = t.name.includes(searchQuery) || t.category.includes(searchQuery);
+  useEffect(() => {
+    Promise.all([
+      api.get('/templates').then(r => r.data),
+      api.get('/templates/categories').then(r => r.data),
+    ]).then(([tplRes, cats]) => {
+      setTemplates(tplRes.data || tplRes);
+      setCategories(['الكل', ...(Array.isArray(cats) ? cats : [])]);
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const filteredTemplates = templates.filter((t: any) => {
+    const cat = t.categoryAr || t.category || '';
+    const name = t.nameAr || t.name || '';
+    const matchesCategory = activeCategory === 'الكل' || cat === activeCategory;
+    const matchesSearch = name.includes(searchQuery) || cat.includes(searchQuery);
     return matchesCategory && matchesSearch;
   });
 
@@ -90,14 +82,18 @@ export default function TemplatesPage() {
 
         {/* Templates Grid */}
         <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6' : 'space-y-4'}>
-          {filteredTemplates.map((template) => (
+          {loading ? (
+            <div className="col-span-full flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary-600" /></div>
+          ) : filteredTemplates.length === 0 ? (
+            <p className="col-span-full text-center text-gray-400 py-16">لا توجد قوالب</p>
+          ) : filteredTemplates.map((template: any) => (
             <Link key={template.id} href={`/create?template=${template.id}`} className="block group">
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden card-hover">
                 <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center text-gray-400">
                     <span className="text-6xl opacity-30">📄</span>
                   </div>
-                  {template.premium && (
+                  {template.isPremium && (
                     <span className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">مميز</span>
                   )}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -105,10 +101,10 @@ export default function TemplatesPage() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{template.name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{template.nameAr || template.name}</h3>
                   <div className="flex items-center justify-between text-xs text-gray-400">
                     <span>{template.category}</span>
-                    <span>{template.downloads.toLocaleString()} تحميل</span>
+                    <span>{template.downloadsCount?.toLocaleString() || 0} تحميل</span>
                   </div>
                 </div>
               </div>

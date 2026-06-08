@@ -19,7 +19,7 @@ export class AdminService {
       totalProjects: projects,
       totalTemplates: templates,
       totalRevenue: payments._sum.amount || 0,
-      subscriptions: subscriptions.reduce((acc: any, s) => ({ ...acc, [s.plan]: s._count }), {}),
+      subscriptions: subscriptions.reduce((acc: any, s: any) => ({ ...acc, [s.plan]: s._count }), {}),
     };
   }
 

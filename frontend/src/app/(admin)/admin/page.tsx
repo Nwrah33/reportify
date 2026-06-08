@@ -1,17 +1,17 @@
 'use client';
 import Link from 'next/link';
-import { Users, FileText, CreditCard, TrendingUp, Template, MessageSquare, DollarSign, Activity } from 'lucide-react';
+import { Users, FileText, CreditCard, TrendingUp, LayoutTemplate, MessageSquare, DollarSign, Activity } from 'lucide-react';
 
 const stats = [
   { label: 'إجمالي المستخدمين', value: '١,٢٣٤', change: '+١٢٪', icon: Users, color: 'bg-blue-500' },
   { label: 'إجمالي المشاريع', value: '٥,٦٧٨', change: '+٢٣٪', icon: FileText, color: 'bg-green-500' },
-  { label: 'القوالب', value: '١٢٠', change: '+٥', icon: Template, color: 'bg-purple-500' },
+  { label: 'القوالب', value: '١٢٠', change: '+٥', icon: LayoutTemplate, color: 'bg-purple-500' },
   { label: 'الإيرادات', value: '٤٥,٦٧٠ ر.س', change: '+١٨٪', icon: DollarSign, color: 'bg-orange-500' },
 ];
 
 const quickLinks = [
   { label: 'إدارة المستخدمين', href: '/admin/users', icon: Users, color: 'text-blue-600 bg-blue-100' },
-  { label: 'إدارة القوالب', href: '/admin/templates', icon: Template, color: 'text-purple-600 bg-purple-100' },
+  { label: 'إدارة القوالب', href: '/admin/templates', icon: LayoutTemplate, color: 'text-purple-600 bg-purple-100' },
   { label: 'الاشتراكات', href: '/admin/subscriptions', icon: CreditCard, color: 'text-green-600 bg-green-100' },
   { label: 'الإحصائيات', href: '/admin/analytics', icon: TrendingUp, color: 'text-orange-600 bg-orange-100' },
 ];

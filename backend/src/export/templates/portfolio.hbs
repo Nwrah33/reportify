@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Cairo', 'Noto Sans Arabic', sans-serif; direction: rtl; text-align: right; color: #1e293b; }
+.cover { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); color: #fff; padding: 80px 60px; text-align: center; }
+.cover h1 { font-size: 36px; margin-bottom: 8px; }
+.cover p { font-size: 16px; opacity: 0.8; }
+.section { padding: 40px 60px; }
+.section:nth-child(even) { background: #f8fafc; }
+h2 { font-size: 24px; color: #1e3a5f; margin-bottom: 20px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+.card h3 { font-size: 16px; color: #1e293b; margin-bottom: 8px; }
+.card p { font-size: 13px; line-height: 1.7; color: #475569; }
+.about p { font-size: 15px; line-height: 2; }
+</style></head>
+<body>
+<div class="cover"><h1>{{title}}</h1>{{#if description}}<p>{{description}}</p>{{/if}}</div>
+
+{{#if about}}
+<div class="section about"><h2>عنّي</h2><p>{{about}}</p></div>
+{{/if}}
+
+{{#if projects}}
+<div class="section"><h2>المشاريع</h2>
+<div class="grid">
+{{#each projects}}
+<div class="card"><h3>{{title}}</h3><p>{{description}}</p></div>
+{{/each}}
+</div></div>
+{{/if}}
+
+{{#if skills}}
+<div class="section"><h2>المهارات</h2>
+<div style="display:flex;flex-wrap:wrap;gap:8px;">
+{{#each skills}}<span style="background:#e2e8f0;padding:6px 14px;border-radius:6px;font-size:13px;">{{this}}</span>{{/each}}
+</div></div>
+{{/if}}
+</body>
+</html>

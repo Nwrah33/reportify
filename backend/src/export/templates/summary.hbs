@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Cairo', 'Noto Sans Arabic', sans-serif; direction: rtl; text-align: right; color: #1e293b; padding: 60px; }
+h1 { font-size: 28px; color: #1e3a5f; margin-bottom: 8px; }
+.subtitle { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+h2 { font-size: 18px; color: #1e3a5f; border-bottom: 2px solid #2563eb; padding-bottom: 6px; margin: 24px 0 12px; }
+p { font-size: 14px; line-height: 2; margin-bottom: 12px; color: #334155; }
+.bullets { padding-right: 20px; }
+.bullets li { font-size: 14px; line-height: 1.8; margin-bottom: 6px; }
+</style></head>
+<body>
+<h1>{{title}}</h1>
+{{#if description}}<div class="subtitle">{{description}}</div>{{/if}}
+{{{contentHtml}}}
+<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center;">
+تم إنشاء هذا الملخص بواسطة Reportify
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>{{title}}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Cairo', 'Noto Sans Arabic', sans-serif; direction: rtl; text-align: right; }
+.slide { width: 1024px; height: 768px; padding: 60px; display: flex; flex-direction: column; justify-content: center; page-break-after: always; position: relative; }
+.slide:first-child { background: linear-gradient(135deg, #1e3a5f, #2563eb); color: #fff; text-align: center; }
+.slide:first-child h1 { font-size: 40px; margin-bottom: 16px; }
+.slide:not(:first-child) { background: #fff; }
+.slide:not(:first-child) h2 { font-size: 28px; color: #1e3a5f; margin-bottom: 20px; border-bottom: 3px solid #2563eb; padding-bottom: 10px; }
+.slide:not(:first-child) p { font-size: 18px; line-height: 1.8; color: #334155; }
+</style></head>
+<body>
+<div class="slide"><h1>{{title}}</h1>{{#if description}}<p style="font-size:18px;opacity:0.9;">{{description}}</p>{{/if}}</div>
+{{#each slides}}
+<div class="slide"><h2>{{title}}</h2><p>{{content}}</p></div>
+{{/each}}
+</body>
+</html>

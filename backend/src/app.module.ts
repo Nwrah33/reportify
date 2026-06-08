@@ -13,6 +13,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { FilesModule } from './files/files.module';
 import { ExportModule } from './export/export.module';
 import { AdminModule } from './admin/admin.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AdminModule } from './admin/admin.module';
     FilesModule,
     ExportModule,
     AdminModule,
+    MailModule,
   ],
   providers: [
     {
