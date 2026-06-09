@@ -46,6 +46,28 @@ export class FilesService {
     return projectFile;
   }
 
+  async uploadLogo(file: Express.Multer.File, projectId: string) {
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException('يرجى رفع صورة فقط');
+    }
+    const ext = path.extname(file.originalname);
+    const fileName = `logo-${uuidv4()}${ext}`;
+    const filePath = path.join(this.uploadDir, fileName);
+    fs.writeFileSync(filePath, file.buffer);
+
+    const project = await this.prisma.project.findUnique({ where: { id: projectId } });
+    if (!project) throw new BadRequestException('المشروع غير موجود');
+
+    const existingSettings = project.settings ? JSON.parse(project.settings) : {};
+    existingSettings.logoUrl = `/uploads/${fileName}`;
+    await this.prisma.project.update({
+      where: { id: projectId },
+      data: { settings: JSON.stringify(existingSettings) },
+    });
+
+    return { logoUrl: `/uploads/${fileName}`, settings: existingSettings };
+  }
+
   async deleteFile(fileId: string, userId: string) {
     const file = await this.prisma.projectFile.findFirst({
       where: { id: fileId, project: { userId } },

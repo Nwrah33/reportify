@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { createProject } from '@/lib/projects-api';
@@ -16,7 +15,6 @@ const projectTypes = [
 function CreatePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
 
   const [step, setStep] = useState(1);
   const [projectType, setProjectType] = useState('');
@@ -87,16 +85,6 @@ function CreatePageContent() {
     CV: 'سيرة ذاتية', FLYER: 'نشرة', COMPANY_PROFILE: 'ملف شركة',
     PORTFOLIO: 'ملف إنجاز', SUMMARY: 'ملخص',
   };
-
-  if (!user) {
-    return (
-      <div className="container-custom py-20 text-center">
-        <h1 className="text-2xl font-bold mb-4">تسجيل الدخول مطلوب</h1>
-        <p className="text-gray-500 mb-6">يرجى تسجيل الدخول أو إنشاء حساب للبدء</p>
-        <Link href="/login" className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700">تسجيل الدخول</Link>
-      </div>
-    );
-  }
 
   return (
     <div className="py-8">

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: reportify-backend
+    env: node
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm run start:prod
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 7d
+      - key: FRONTEND_URL
+        value: https://reportify-frontend.vercel.app
+      - key: PORT
+        value: 4000

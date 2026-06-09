@@ -7,11 +7,11 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { QueryProjectsDto } from './dto/query-projects.dto';
 
 @Controller('projects')
-@UseGuards(JwtAuthGuard)
 export class ProjectsController {
   constructor(private projectsService: ProjectsService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll(
     @CurrentUser('id') userId: string,
     @Query(ValidationPipe) query: QueryProjectsDto,
@@ -20,21 +20,25 @@ export class ProjectsController {
   }
 
   @Get('stats')
+  @UseGuards(JwtAuthGuard)
   getStats(@CurrentUser('id') userId: string) {
     return this.projectsService.getStats(userId);
   }
 
   @Get('recent')
+  @UseGuards(JwtAuthGuard)
   getRecent(@CurrentUser('id') userId: string) {
     return this.projectsService.getRecentProjects(userId);
   }
 
   @Get('favorites')
+  @UseGuards(JwtAuthGuard)
   getFavorites(@CurrentUser('id') userId: string) {
     return this.projectsService.getFavorites(userId);
   }
 
   @Get('template-recommendations')
+  @UseGuards(JwtAuthGuard)
   getTemplateRecommendations(
     @CurrentUser('id') userId: string,
     @Query('projectType') projectType?: string,
@@ -48,13 +52,13 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  findById(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  findById(@Param('id') id: string, @CurrentUser('id') userId: string | undefined) {
     return this.projectsService.findById(id, userId);
   }
 
   @Post()
   create(
-    @CurrentUser('id') userId: string,
+    @CurrentUser('id') userId: string | undefined,
     @Body(ValidationPipe) body: CreateProjectDto,
   ) {
     if (body.prompt && !body.title) {
@@ -65,13 +69,14 @@ export class ProjectsController {
 
   @Post('create-with-ai')
   createWithAi(
-    @CurrentUser('id') userId: string,
+    @CurrentUser('id') userId: string | undefined,
     @Body(ValidationPipe) body: CreateProjectDto,
   ) {
     return this.projectsService.createWithAi(userId, body);
   }
 
   @Post('batch-delete')
+  @UseGuards(JwtAuthGuard)
   batchRemove(
     @CurrentUser('id') userId: string,
     @Body('ids') ids: string[],
@@ -80,6 +85,7 @@ export class ProjectsController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
@@ -89,6 +95,7 @@ export class ProjectsController {
   }
 
   @Put(':id/content')
+  @UseGuards(JwtAuthGuard)
   saveContent(
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
@@ -98,16 +105,19 @@ export class ProjectsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.projectsService.remove(id, userId);
   }
 
   @Post(':id/favorite')
+  @UseGuards(JwtAuthGuard)
   toggleFavorite(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.projectsService.toggleFavorite(id, userId);
   }
 
   @Post(':id/duplicate')
+  @UseGuards(JwtAuthGuard)
   duplicate(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.projectsService.duplicate(id, userId);
   }

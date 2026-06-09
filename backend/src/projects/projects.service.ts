@@ -16,6 +16,7 @@ export class ProjectsService {
   async findAll(userId: string, query: QueryProjectsDto) {
     const where: any = { userId };
     const { search, status, projectType, isFavorite, dateFrom, dateTo, sortBy, sortOrder, page = 1, limit = 20 } = query;
+    if (!userId) return { data: [], total: 0, page, limit, totalPages: 0 };
 
     if (status) where.status = status;
     if (projectType) where.projectType = projectType;
@@ -64,9 +65,11 @@ export class ProjectsService {
     };
   }
 
-  async findById(id: string, userId: string) {
+  async findById(id: string, userId?: string) {
+    const where: any = { id };
+    if (userId) where.userId = userId;
     const project = await this.prisma.project.findFirst({
-      where: { id, userId },
+      where,
       include: { template: true, projectFiles: true },
     });
     if (!project) throw new NotFoundException('المشروع غير موجود');
@@ -82,7 +85,8 @@ export class ProjectsService {
     return this.parseProjectJson(project);
   }
 
-  async create(userId: string, dto: CreateProjectDto) {
+  async create(userId: string | undefined, dto: CreateProjectDto) {
+    if (!userId) userId = await this.getAnonymousUserId();
     const data: any = {
       userId,
       title: dto.title,
@@ -127,8 +131,9 @@ export class ProjectsService {
     return this.findById(project.id, userId);
   }
 
-  async createWithAi(userId: string, dto: CreateProjectDto) {
+  async createWithAi(userId: string | undefined, dto: CreateProjectDto) {
     if (!dto.prompt) throw new BadRequestException('الوصف مطلوب لإنشاء المشروع بالذكاء الاصطناعي');
+    if (!userId) userId = await this.getAnonymousUserId();
 
     const projectType = dto.projectType || 'REPORT';
     let aiContent: any;
@@ -318,5 +323,21 @@ export class ProjectsService {
         data: { userId, action, details: details ? JSON.stringify(details) : undefined },
       });
     } catch {}
+  }
+
+  private async getAnonymousUserId(): Promise<string> {
+    const GUEST_EMAIL = 'guest@reportify.app';
+    let guest = await this.prisma.user.findUnique({ where: { email: GUEST_EMAIL } });
+    if (!guest) {
+      guest = await this.prisma.user.create({
+        data: {
+          email: GUEST_EMAIL,
+          name: 'زائر',
+          role: 'USER',
+          emailVerified: true,
+        },
+      });
+    }
+    return guest.id;
   }
 }

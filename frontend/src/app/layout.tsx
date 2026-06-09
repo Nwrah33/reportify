@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   description: 'منصة متخصصة في تصميم وإنشاء التقارير والبروشورات والعروض التقديمية بشكل تلقائي باستخدام الذكاء الاصطناعي',
   keywords: ['تقارير', 'بروشورات', 'عروض تقديمية', 'ذكاء اصطناعي', 'تصميم', 'قوالب'],
   authors: [{ name: 'Reportify' }],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: '#1e3a5f',
 };
 

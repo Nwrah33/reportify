@@ -17,6 +17,17 @@ async function main() {
     },
   });
 
+  const guest = await prisma.user.upsert({
+    where: { email: 'guest@reportify.app' },
+    update: {},
+    create: {
+      email: 'guest@reportify.app',
+      name: 'زائر',
+      role: 'USER',
+      emailVerified: true,
+    },
+  });
+
   const templates = [
     {
       name: 'business-report-modern-blue',

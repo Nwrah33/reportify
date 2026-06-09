@@ -2,23 +2,28 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as path from 'path';
 import * as helmet from 'helmet';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
   app.setGlobalPrefix('api');
   
   app.enableCors({
-    origin: configService.get('FRONTEND_URL', 'http://localhost:3000'),
+    origin: true,
     credentials: true,
   });
 
   app.use(helmet.default({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   }));
+
+  const uploadDir = configService.get('UPLOAD_DIR', './uploads');
+  app.useStaticAssets(path.resolve(uploadDir), { prefix: '/uploads' });
 
   app.useGlobalPipes(
     new ValidationPipe({
