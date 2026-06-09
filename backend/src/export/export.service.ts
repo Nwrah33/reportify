@@ -250,11 +250,12 @@ export class ExportService {
     });
 
     try {
-      const puppeteer = await import('puppeteer');
+      const puppeteer = await import('puppeteer-core');
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+          || (process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/chromium'),
       });
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -442,11 +443,12 @@ export class ExportService {
     });
 
     try {
-      const puppeteer = await import('puppeteer');
+      const puppeteer = await import('puppeteer-core');
       const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+          || (process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/chromium'),
       });
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
